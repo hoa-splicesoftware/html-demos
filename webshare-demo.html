@@ -284,7 +284,26 @@
     <button class="share-btn btn-native" onclick="shareFile()">&#x1F4CE; Share File</button>
   </div>
 
-  <!-- ── 4. Twitter / X ── -->
+  <!-- ── 4. Video sharing ── -->
+  <div class="card">
+    <span class="card-title">Feature 4</span>
+    <h2>Share a Video</h2>
+    <p>Pick a local video file, preview it, then share via the Web Share API — or fall back to a download link.</p>
+
+    <div class="payload-editor">
+      <label for="video-input">Choose video</label>
+      <input id="video-input" type="file" accept="video/*" onchange="onVideoSelected()" />
+    </div>
+
+    <video id="video-preview" controls style="display:none; width:100%; border-radius:0.5rem; background:#000; max-height:180px;"></video>
+
+    <div class="btn-group">
+      <button id="btn-share-video" class="share-btn btn-native" onclick="shareVideo()" disabled>&#x1F3A5; Share Video</button>
+      <a id="btn-download-video" class="share-btn btn-copy" style="display:none;" download>&#x2B07;&#xFE0F; Download (fallback)</a>
+    </div>
+  </div>
+
+  <!-- ── 6. Twitter / X ── -->
   <div class="card">
     <span class="card-title">Fallback — Twitter / X</span>
     <h2>Share to Twitter</h2>
@@ -413,10 +432,16 @@ if (navigator.canShare?.(data)) {
   await navigator.share(data);
 }
 
-// File sharing
+// File sharing (image)
 const file = new File([blob], 'image.png', { type: 'image/png' });
 if (navigator.canShare?.({ files: [file] })) {
   await navigator.share({ files: [file], title: 'My image' });
+}
+
+// Video sharing
+const [videoFile] = videoInput.files;
+if (navigator.canShare?.({ files: [videoFile] })) {
+  await navigator.share({ files: [videoFile], title: videoFile.name });
 }</pre>
   </div>
 
@@ -516,6 +541,45 @@ if (navigator.canShare?.({ files: [file] })) {
     try {
       await navigator.share({ files: [file], title: file.name });
       toast('✓ File shared');
+    } catch (err) {
+      if (err.name !== 'AbortError') toast('Share failed: ' + err.message);
+    }
+  }
+
+  // ── Feature 4 — Video share ──────────────────────────────────────────
+
+  function onVideoSelected() {
+    const input = document.getElementById('video-input');
+    const video = document.getElementById('video-preview');
+    const shareBtn = document.getElementById('btn-share-video');
+    const dlBtn = document.getElementById('btn-download-video');
+    const file = input.files[0];
+
+    if (!file) return;
+
+    const objectUrl = URL.createObjectURL(file);
+    video.src = objectUrl;
+    video.style.display = 'block';
+
+    dlBtn.href = objectUrl;
+    dlBtn.download = file.name;
+    dlBtn.style.display = 'inline-flex';
+
+    shareBtn.disabled = !navigator.canShare?.({ files: [file] });
+  }
+
+  async function shareVideo() {
+    const file = document.getElementById('video-input').files[0];
+    if (!file) { toast('Please select a video first'); return; }
+
+    if (!navigator.canShare?.({ files: [file] })) {
+      toast('Video file sharing not supported in this browser');
+      return;
+    }
+
+    try {
+      await navigator.share({ files: [file], title: file.name });
+      toast('✓ Video shared');
     } catch (err) {
       if (err.name !== 'AbortError') toast('Share failed: ' + err.message);
     }
