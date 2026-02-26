@@ -1072,17 +1072,20 @@ if (navigator.canShare?.({ files: [videoFile] })) {
 
     if (file) {
       if (file.type.includes('webm')) {
-        toast('⚠ Instagram requires MP4 — sharing link only.');
-        // fall through to URL-only share below
-      } else if (navigator.canShare?.({ files: [file] })) {
-        try {
-          await navigator.share({ files: [file], title });
-          toast('✓ Video shared via native sheet');
-        } catch (err) {
-          if (err.name !== 'AbortError') instagramFallback(url);
-        }
+        toast('⚠ Instagram requires MP4 — please use an MP4 file.');
         return;
       }
+      if (!navigator.canShare?.({ files: [file] })) {
+        toast('⚠ File sharing not supported on this device/browser.');
+        return;
+      }
+      try {
+        await navigator.share({ files: [file], title });
+        toast('✓ Shared via native sheet');
+      } catch (err) {
+        if (err.name !== 'AbortError') toast('Share failed: ' + err.message);
+      }
+      return;
     }
 
     if ('share' in navigator) {
