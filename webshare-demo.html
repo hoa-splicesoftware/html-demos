@@ -8,31 +8,15 @@
   <meta property="og:type"         content="website" />
   <meta property="og:title"        content="Web Share API Demo" />
   <meta property="og:description"  content="Explore native device sharing alongside social media fallbacks — live demos for iOS, Android, and desktop." />
-  <meta property="og:url"          content="" />
-  <meta property="og:image"        content="" />
+  <meta property="og:url"          content="https://hoa-splicesoftware.github.io/html-demos/webshare-demo.html" />
+  <meta property="og:image"        content="https://hoa-splicesoftware.github.io/html-demos/webshare-og.png" />
   <meta property="og:image:width"  content="1200" />
   <meta property="og:image:height" content="630" />
   <!-- Twitter / X card -->
   <meta name="twitter:card"        content="summary_large_image" />
   <meta name="twitter:title"       content="Web Share API Demo" />
   <meta name="twitter:description" content="Explore native device sharing alongside social media fallbacks — live demos for iOS, Android, and desktop." />
-  <meta name="twitter:image"       content="" />
-  <!-- Inline script: fills og:url and og:image from window.location so they
-       resolve correctly on any static host without knowing the domain at build time.
-       Scrapers that skip JS still see og:title, og:description, and og:type above. -->
-  <script>
-    (function () {
-      var pageUrl = location.href;
-      document.querySelector('meta[property="og:url"]').content = pageUrl;
-
-      // Derive absolute URL for the OG image relative to this page's directory.
-      var imgUrl = location.origin
-        + location.pathname.replace(/\/[^/]*$/, '/')
-        + 'webshare-og.png';
-      document.querySelector('meta[property="og:image"]').content  = imgUrl;
-      document.querySelector('meta[name="twitter:image"]').content = imgUrl;
-    })();
-  </script>
+  <meta name="twitter:image"       content="https://hoa-splicesoftware.github.io/html-demos/webshare-og.png" />
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
