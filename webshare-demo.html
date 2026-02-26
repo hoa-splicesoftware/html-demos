@@ -278,8 +278,10 @@
 
     <div class="payload-editor">
       <label for="file-input">Choose file</label>
-      <input id="file-input" type="file" />
+      <input id="file-input" type="file" onchange="onFileSelected()" />
     </div>
+
+    <img id="file-preview" style="display:none; width:100%; border-radius:0.5rem; object-fit:contain; max-height:180px; background:#11111a;" alt="Preview" />
 
     <button class="share-btn btn-native" onclick="shareFile()">&#x1F4CE; Share File</button>
   </div>
@@ -526,6 +528,20 @@ if (navigator.canShare?.({ files: [videoFile] })) {
   }
 
   // ── Feature 3 — File share ───────────────────────────────────────────
+
+  function onFileSelected() {
+    const file = document.getElementById('file-input').files[0];
+    const preview = document.getElementById('file-preview');
+
+    if (file && file.type.startsWith('image/')) {
+      const objectUrl = URL.createObjectURL(file);
+      preview.src = objectUrl;
+      preview.style.display = 'block';
+    } else {
+      preview.style.display = 'none';
+      preview.src = '';
+    }
+  }
 
   async function shareFile() {
     const fileInput = document.getElementById('file-input');
