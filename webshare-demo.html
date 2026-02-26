@@ -281,6 +281,9 @@
     <div class="payload-editor">
       <label for="file-input">Choose file</label>
       <input id="file-input" type="file" onchange="onFileSelected()" />
+      <button id="btn-file-sample" class="share-btn btn-copy" onclick="loadFileSample()" style="margin-top:0.35rem;">
+        &#x1F5BC;&#xFE0F; Use sample image
+      </button>
     </div>
 
     <img id="file-preview" style="display:none; width:100%; border-radius:0.5rem; object-fit:contain; max-height:180px; background:#11111a;" alt="Preview" />
@@ -389,13 +392,19 @@
     <p>Instagram has no web share URL. On mobile, pick a video to share via the native sheet, or share the link. On desktop, the link is copied and Instagram opens.</p>
 
     <div class="payload-editor">
-      <label for="instagram-video-input">Video (optional)</label>
-      <input id="instagram-video-input" type="file" accept="video/*" onchange="onInstagramVideoSelected()" />
-      <button id="btn-instagram-sample" class="share-btn btn-copy" onclick="loadInstagramSample()" style="margin-top:0.35rem;">
-        &#x1F3A5; Use sample video
-      </button>
+      <label for="instagram-video-input">Image or video (optional)</label>
+      <input id="instagram-video-input" type="file" accept="image/*,video/*" onchange="onInstagramVideoSelected()" />
+      <div style="display:flex; gap:0.4rem; margin-top:0.35rem;">
+        <button id="btn-instagram-img-sample" class="share-btn btn-copy" onclick="loadInstagramImageSample()" style="flex:1;">
+          &#x1F5BC;&#xFE0F; Sample image
+        </button>
+        <button id="btn-instagram-sample" class="share-btn btn-copy" onclick="loadInstagramSample()" style="flex:1;">
+          &#x1F3A5; Sample video
+        </button>
+      </div>
     </div>
 
+    <img id="instagram-img-preview" style="display:none; width:100%; border-radius:0.5rem; object-fit:contain; max-height:160px; background:#11111a;" alt="Preview" />
     <video id="instagram-video-preview" controls style="display:none; width:100%; border-radius:0.5rem; background:#000; max-height:160px;"></video>
 
     <button class="share-btn btn-instagram" onclick="shareInstagram()">
@@ -411,13 +420,19 @@
     <p>TikTok has no web share URL. On mobile, pick a video to share via the native sheet, or share the link. On desktop, the link is copied and TikTok opens.</p>
 
     <div class="payload-editor">
-      <label for="tiktok-video-input">Video (optional)</label>
-      <input id="tiktok-video-input" type="file" accept="video/*" onchange="onTikTokVideoSelected()" />
-      <button id="btn-tiktok-sample" class="share-btn btn-copy" onclick="loadTikTokSample()" style="margin-top:0.35rem;">
-        &#x1F3A5; Use sample video
-      </button>
+      <label for="tiktok-video-input">Image or video (optional)</label>
+      <input id="tiktok-video-input" type="file" accept="image/*,video/*" onchange="onTikTokVideoSelected()" />
+      <div style="display:flex; gap:0.4rem; margin-top:0.35rem;">
+        <button id="btn-tiktok-img-sample" class="share-btn btn-copy" onclick="loadTikTokImageSample()" style="flex:1;">
+          &#x1F5BC;&#xFE0F; Sample image
+        </button>
+        <button id="btn-tiktok-sample" class="share-btn btn-copy" onclick="loadTikTokSample()" style="flex:1;">
+          &#x1F3A5; Sample video
+        </button>
+      </div>
     </div>
 
+    <img id="tiktok-img-preview" style="display:none; width:100%; border-radius:0.5rem; object-fit:contain; max-height:160px; background:#11111a;" alt="Preview" />
     <video id="tiktok-video-preview" controls style="display:none; width:100%; border-radius:0.5rem; background:#000; max-height:160px;"></video>
 
     <button class="share-btn btn-tiktok" onclick="shareTikTok()">
@@ -580,13 +595,70 @@ if (navigator.canShare?.({ files: [videoFile] })) {
 
   // ── Feature 3 — File share ───────────────────────────────────────────
 
+  let feature3FileRef = null;
+
+  function generateSampleImage(label, colors, platformName) {
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 800; canvas.height = 800;
+      const ctx = canvas.getContext('2d');
+
+      const grad = ctx.createLinearGradient(0, 0, 800, 800);
+      colors.forEach((c, i) => grad.addColorStop(i / (colors.length - 1), c));
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 800, 800);
+
+      // Decorative circles
+      [[400, 300, 140], [400, 300, 100], [400, 300, 60]].forEach(([x, y, r], i) => {
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${0.08 + i * 0.07})`;
+        ctx.fill();
+      });
+
+      ctx.fillStyle = '#fff';
+      ctx.textAlign = 'center';
+      ctx.font = 'bold 52px -apple-system, sans-serif';
+      ctx.fillText(platformName, 400, 500);
+      ctx.font = '30px -apple-system, sans-serif';
+      ctx.fillStyle = 'rgba(255,255,255,0.8)';
+      ctx.fillText('Web Share API Demo', 400, 555);
+
+      canvas.toBlob(blob => {
+        if (!blob) { reject(new Error('Canvas toBlob failed')); return; }
+        resolve(new File([blob], `${label}.png`, { type: 'image/png' }));
+      }, 'image/png');
+    });
+  }
+
+  async function loadFileSample() {
+    const btn = document.getElementById('btn-file-sample');
+    btn.disabled = true;
+    btn.textContent = 'Generating…';
+    try {
+      feature3FileRef = await generateSampleImage('sample-image',
+        ['#7c3aed', '#60a5fa', '#a78bfa', '#60a5fa'], 'Sample Image');
+      const preview = document.getElementById('file-preview');
+      preview.src = URL.createObjectURL(feature3FileRef);
+      preview.style.display = 'block';
+      btn.textContent = '✓ Sample loaded';
+    } catch (err) {
+      toast('Could not generate sample: ' + err.message);
+      btn.disabled = false;
+      btn.innerHTML = '&#x1F5BC;&#xFE0F; Use sample image';
+    }
+  }
+
   function onFileSelected() {
     const file = document.getElementById('file-input').files[0];
     const preview = document.getElementById('file-preview');
+    feature3FileRef = file || null;
+    const sampleBtn = document.getElementById('btn-file-sample');
+    sampleBtn.disabled = false;
+    sampleBtn.innerHTML = '&#x1F5BC;&#xFE0F; Use sample image';
 
     if (file && file.type.startsWith('image/')) {
-      const objectUrl = URL.createObjectURL(file);
-      preview.src = objectUrl;
+      preview.src = URL.createObjectURL(file);
       preview.style.display = 'block';
     } else {
       preview.style.display = 'none';
@@ -595,8 +667,7 @@ if (navigator.canShare?.({ files: [videoFile] })) {
   }
 
   async function shareFile() {
-    const fileInput = document.getElementById('file-input');
-    const file = fileInput.files[0];
+    const file = feature3FileRef || document.getElementById('file-input').files[0];
 
     if (!file) { toast('Please select a file first'); return; }
 
@@ -793,6 +864,26 @@ if (navigator.canShare?.({ files: [videoFile] })) {
       'Instagram');
   }
 
+  async function loadInstagramImageSample() {
+    const btn = document.getElementById('btn-instagram-img-sample');
+    const imgEl = document.getElementById('instagram-img-preview');
+    const videoEl = document.getElementById('instagram-video-preview');
+    btn.disabled = true;
+    btn.textContent = 'Generating…';
+    try {
+      instagramVideoFile = await generateSampleImage('instagram-sample',
+        ['#f09433','#e6683c','#dc2743','#cc2366','#bc1888'], 'Instagram');
+      videoEl.style.display = 'none';
+      imgEl.src = URL.createObjectURL(instagramVideoFile);
+      imgEl.style.display = 'block';
+      btn.textContent = '✓ Sample loaded';
+    } catch (err) {
+      toast('Could not generate sample: ' + err.message);
+      btn.disabled = false;
+      btn.innerHTML = '&#x1F5BC;&#xFE0F; Sample image';
+    }
+  }
+
   function loadTikTokSample() {
     return _loadSample('btn-tiktok-sample', 'tiktok-video-preview',
       f => tiktokVideoFile = f,
@@ -801,19 +892,49 @@ if (navigator.canShare?.({ files: [videoFile] })) {
       'TikTok');
   }
 
+  async function loadTikTokImageSample() {
+    const btn = document.getElementById('btn-tiktok-img-sample');
+    const imgEl = document.getElementById('tiktok-img-preview');
+    const videoEl = document.getElementById('tiktok-video-preview');
+    btn.disabled = true;
+    btn.textContent = 'Generating…';
+    try {
+      tiktokVideoFile = await generateSampleImage('tiktok-sample',
+        ['#010101','#69c9d0','#ee1d52','#010101'], 'TikTok');
+      videoEl.style.display = 'none';
+      imgEl.src = URL.createObjectURL(tiktokVideoFile);
+      imgEl.style.display = 'block';
+      btn.textContent = '✓ Sample loaded';
+    } catch (err) {
+      toast('Could not generate sample: ' + err.message);
+      btn.disabled = false;
+      btn.innerHTML = '&#x1F5BC;&#xFE0F; Sample image';
+    }
+  }
+
+  function _showMediaPreview(file, imgEl, videoEl) {
+    const isImage = file.type.startsWith('image/');
+    imgEl.style.display = 'none'; imgEl.src = '';
+    videoEl.style.display = 'none'; videoEl.src = '';
+    const el = isImage ? imgEl : videoEl;
+    el.src = URL.createObjectURL(file);
+    el.style.display = 'block';
+  }
+
   function onInstagramVideoSelected() {
     const file = document.getElementById('instagram-video-input').files[0];
-    const preview = document.getElementById('instagram-video-preview');
-    instagramVideoFile = file || null; // file input overrides sample
+    instagramVideoFile = file || null;
+    document.getElementById('btn-instagram-sample').disabled = false;
+    document.getElementById('btn-instagram-sample').innerHTML = '&#x1F3A5; Sample video';
+    document.getElementById('btn-instagram-img-sample').disabled = false;
+    document.getElementById('btn-instagram-img-sample').innerHTML = '&#x1F5BC;&#xFE0F; Sample image';
+    const imgEl = document.getElementById('instagram-img-preview');
+    const videoEl = document.getElementById('instagram-video-preview');
     if (file) {
-      preview.src = URL.createObjectURL(file);
-      preview.style.display = 'block';
-      const btn = document.getElementById('btn-instagram-sample');
-      btn.disabled = false;
-      btn.innerHTML = '&#x1F3A5; Use sample video';
+      _showMediaPreview(file, imgEl, videoEl);
     } else {
-      preview.style.display = 'none';
-      preview.src = '';
+      imgEl.style.display = 'none';
+      videoEl.style.display = 'none';
     }
   }
 
@@ -842,17 +963,18 @@ if (navigator.canShare?.({ files: [videoFile] })) {
 
   function onTikTokVideoSelected() {
     const file = document.getElementById('tiktok-video-input').files[0];
-    const preview = document.getElementById('tiktok-video-preview');
     tiktokVideoFile = file || null;
-    const sampleBtn = document.getElementById('btn-tiktok-sample');
-    sampleBtn.disabled = false;
-    sampleBtn.innerHTML = '&#x1F3A5; Use sample video';
+    document.getElementById('btn-tiktok-sample').disabled = false;
+    document.getElementById('btn-tiktok-sample').innerHTML = '&#x1F3A5; Sample video';
+    document.getElementById('btn-tiktok-img-sample').disabled = false;
+    document.getElementById('btn-tiktok-img-sample').innerHTML = '&#x1F5BC;&#xFE0F; Sample image';
+    const imgEl = document.getElementById('tiktok-img-preview');
+    const videoEl = document.getElementById('tiktok-video-preview');
     if (file) {
-      preview.src = URL.createObjectURL(file);
-      preview.style.display = 'block';
+      _showMediaPreview(file, imgEl, videoEl);
     } else {
-      preview.style.display = 'none';
-      preview.src = '';
+      imgEl.style.display = 'none';
+      videoEl.style.display = 'none';
     }
   }
 
