@@ -982,13 +982,26 @@ if (navigator.canShare?.({ files: [videoFile] })) {
     }
   }
 
-  function loadInstagramSample() {
-    return _loadSample('btn-instagram-sample', 'instagram-video-preview',
-      f => instagramVideoFile = f,
-      'instagram-sample',
-      ['#f09433','#e6683c','#dc2743','#cc2366','#bc1888'],
-      'Instagram',
-      generateSampleVideoPreferMP4);
+  async function loadInstagramSample() {
+    const btn = document.getElementById('btn-instagram-sample');
+    const videoEl = document.getElementById('instagram-video-preview');
+    const imgEl = document.getElementById('instagram-img-preview');
+    btn.disabled = true;
+    btn.textContent = 'Loading…';
+    try {
+      const res = await fetch('sample-instagram.mp4');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const blob = await res.blob();
+      instagramVideoFile = new File([blob], 'sample-instagram.mp4', { type: 'video/mp4' });
+      imgEl.style.display = 'none';
+      videoEl.src = URL.createObjectURL(instagramVideoFile);
+      videoEl.style.display = 'block';
+      btn.textContent = '✓ Sample loaded';
+    } catch (err) {
+      toast('Could not load sample: ' + err.message);
+      btn.disabled = false;
+      btn.innerHTML = '&#x1F3A5; Sample video';
+    }
   }
 
   async function loadInstagramImageSample() {
