@@ -4,6 +4,74 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Web Share API Demo</title>
+  <!-- Open Graph / link preview metadata -->
+  <meta property="og:type"         content="website" />
+  <meta property="og:title"        content="Web Share API Demo" />
+  <meta property="og:description"  content="Explore native device sharing alongside social media fallbacks — live demos for iOS, Android, and desktop." />
+  <meta property="og:url"          content="" />
+  <meta property="og:image"        content="" />
+  <meta property="og:image:width"  content="1200" />
+  <meta property="og:image:height" content="630" />
+  <!-- Twitter / X card -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="Web Share API Demo" />
+  <meta name="twitter:description" content="Explore native device sharing alongside social media fallbacks — live demos for iOS, Android, and desktop." />
+  <meta name="twitter:image"       content="" />
+  <!-- Inline script: fills og:url from window.location and generates og:image via canvas.
+       Runs synchronously so values are set before any JS-capable scraper proceeds.
+       Scrapers that skip JS still see og:title, og:description, and og:type above. -->
+  <script>
+    (function () {
+      var pageUrl = location.href;
+      document.querySelector('meta[property="og:url"]').content = pageUrl;
+
+      var W = 1200, H = 630;
+      var c = document.createElement('canvas');
+      c.width = W; c.height = H;
+      var ctx = c.getContext('2d');
+
+      // Background
+      var bg = ctx.createLinearGradient(0, 0, W, H);
+      bg.addColorStop(0, '#0f0f13');
+      bg.addColorStop(1, '#1e1b2e');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, H);
+
+      // Soft radial glow
+      var glow = ctx.createRadialGradient(W / 2, H * 0.42, 0, W / 2, H * 0.42, 420);
+      glow.addColorStop(0,   'rgba(124,58,237,0.38)');
+      glow.addColorStop(0.55,'rgba(96,165,250,0.14)');
+      glow.addColorStop(1,   'rgba(0,0,0,0)');
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, W, H);
+
+      // Title (gradient text via fillText over clip path approximation)
+      ctx.textAlign = 'center';
+      var titleGrad = ctx.createLinearGradient(200, 0, 1000, 0);
+      titleGrad.addColorStop(0, '#a78bfa');
+      titleGrad.addColorStop(1, '#60a5fa');
+      ctx.fillStyle = titleGrad;
+      ctx.font = 'bold 74px -apple-system, system-ui, sans-serif';
+      ctx.fillText('Web Share API Demo', W / 2, 268);
+
+      // Subtitle
+      ctx.fillStyle = 'rgba(255,255,255,0.52)';
+      ctx.font = '33px -apple-system, system-ui, sans-serif';
+      ctx.fillText('Native sharing + social media fallbacks', W / 2, 342);
+
+      // URL watermark
+      ctx.fillStyle = 'rgba(255,255,255,0.2)';
+      ctx.font = '21px monospace';
+      var displayUrl = pageUrl.replace(/^https?:\/\//, '');
+      if (displayUrl.length > 64) displayUrl = displayUrl.slice(0, 62) + '\u2026';
+      ctx.fillText(displayUrl, W / 2, 432);
+
+      var dataUrl = c.toDataURL('image/png');
+      document.querySelector('meta[property="og:image"]').content   = dataUrl;
+      document.querySelector('meta[name="twitter:image"]').content  = dataUrl;
+    })();
+  </script>
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -233,6 +301,71 @@
     .check { color: #4ade80; font-size: 0.9rem; }
     .cross { color: #f87171; font-size: 0.9rem; }
 
+    /* ── OG preview card ── */
+    .og-preview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    @media (max-width: 620px) {
+      .og-preview-grid { grid-template-columns: 1fr; }
+    }
+
+    .og-mock-card {
+      border: 1px solid #3a3a50;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      background: #11111a;
+    }
+
+    .og-mock-img {
+      height: 160px;
+      background: linear-gradient(135deg, #7c3aed, #60a5fa);
+      background-size: cover;
+      background-position: center;
+    }
+
+    .og-mock-body { padding: 0.75rem 1rem; }
+
+    .og-mock-domain {
+      font-size: 0.7rem;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.25rem;
+    }
+
+    .og-mock-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #e4e4f0;
+      margin-bottom: 0.3rem;
+    }
+
+    .og-mock-desc {
+      font-size: 0.78rem;
+      color: #777;
+      line-height: 1.45;
+    }
+
+    .og-tags-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+
+    .og-tags-table td {
+      padding: 0.35rem 0;
+      vertical-align: top;
+      border-bottom: 1px solid #1e1e2e;
+    }
+
+    .og-tags-table td:first-child {
+      color: #a5b4fc;
+      white-space: nowrap;
+      padding-right: 0.75rem;
+    }
+
+    .og-tags-table td:last-child { color: #777; word-break: break-all; }
+
     /* ── Code block ── */
     pre {
       background: #11111a;
@@ -258,6 +391,7 @@
 </header>
 
 <nav class="toc" aria-label="Jump to section">
+  <a href="#card-og">Link Preview</a>
   <a href="#card-native">Native Share</a>
   <a href="#card-can-share">canShare()</a>
   <a href="#card-file">Share File</a>
@@ -276,6 +410,39 @@
 
 <div class="grid">
 
+  <!-- ── 0. Link Preview (Open Graph) ── -->
+  <div class="card" id="card-og" style="grid-column: 1 / -1;">
+    <span class="card-title">Metadata</span>
+    <h2>Link Preview (Open Graph)</h2>
+    <p>When a URL is shared to Slack, iMessage, Twitter, or any platform, the platform fetches the page and reads <code>&lt;meta property="og:…"&gt;</code> tags to build a preview card. These must be in the initial HTML — most scrapers do not execute JavaScript.</p>
+
+    <div class="og-preview-grid">
+      <div>
+        <div class="card-title" style="margin-bottom:0.6rem;">Simulated preview</div>
+        <div class="og-mock-card">
+          <div id="og-mock-img" class="og-mock-img"></div>
+          <div class="og-mock-body">
+            <div id="og-mock-domain" class="og-mock-domain"></div>
+            <div id="og-mock-title"  class="og-mock-title"></div>
+            <div id="og-mock-desc"   class="og-mock-desc"></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card-title" style="margin-bottom:0.6rem;">Current meta tag values</div>
+        <table id="og-tags-table" class="og-tags-table"></table>
+        <p style="margin-top:0.75rem; font-size:0.75rem; color:#555; line-height:1.55;">
+          <strong style="color:#666;">Static hosting:</strong> <code>og:url</code> and <code>og:image</code> are injected by an inline <code>&lt;script&gt;</code> in <code>&lt;head&gt;</code> using <code>window.location</code>, so they resolve correctly on any domain. The title, description, and type are hardcoded and visible to all scrapers.
+          <br><br>
+          <strong style="color:#666;">Note:</strong> <code>data:</code> URLs are rejected by most social platforms for <code>og:image</code> — production sites should serve a real image file. The canvas-generated image is shown here for demonstration.
+        </p>
+      </div>
+    </div>
+
+    <button class="share-btn btn-copy" onclick="refreshOgPreview()" style="max-width:180px;">&#x21BB; Refresh preview</button>
+  </div>
+
   <!-- ── 1. Native Share (navigator.share) ── -->
   <div class="card" id="card-native">
     <span class="card-title">Feature 1</span>
@@ -290,7 +457,7 @@
       <textarea id="share-text" rows="2">A powerful browser API for triggering native sharing.</textarea>
 
       <label for="share-url">URL</label>
-      <input id="share-url" type="url" value="https://developer.mozilla.org/en-US/docs/Web/API/Web_Share_API" />
+      <input id="share-url" type="url" value="" />
     </div>
 
     <div class="btn-group">
@@ -1199,6 +1366,58 @@ if (navigator.canShare?.({ files: [videoFile] })) {
       menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
     }
   }
+
+  // ── OG preview card ───────────────────────────────────────────────────
+
+  function refreshOgPreview() {
+    const get = (attr, name) =>
+      document.querySelector(`meta[${attr}="${name}"]`)?.content || '';
+
+    const title  = get('property', 'og:title');
+    const desc   = get('property', 'og:description');
+    const url    = get('property', 'og:url') || location.href;
+    const imgSrc = get('property', 'og:image');
+
+    document.getElementById('og-mock-title').textContent = title;
+    document.getElementById('og-mock-desc').textContent  = desc;
+
+    try {
+      document.getElementById('og-mock-domain').textContent = new URL(url).hostname;
+    } catch { /* ignore */ }
+
+    const imgEl = document.getElementById('og-mock-img');
+    if (imgSrc) {
+      imgEl.style.backgroundImage = `url(${imgSrc})`;
+    }
+
+    const rows = [
+      ['og:title',        'property'],
+      ['og:description',  'property'],
+      ['og:url',          'property'],
+      ['og:type',         'property'],
+      ['og:image',        'property'],
+      ['og:image:width',  'property'],
+      ['og:image:height', 'property'],
+      ['twitter:card',    'name'],
+      ['twitter:title',   'name'],
+      ['twitter:image',   'name'],
+    ];
+
+    document.getElementById('og-tags-table').innerHTML = rows.map(([name, attr]) => {
+      let val = get(attr, name) || '—';
+      if (val.startsWith('data:')) {
+        val = `data:image/png;base64,\u2026 (${Math.round(val.length / 1024)} KB canvas-generated)`;
+      } else if (val.length > 72) {
+        val = val.slice(0, 70) + '\u2026';
+      }
+      return `<tr><td>${name}</td><td>${val}</td></tr>`;
+    }).join('');
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────
+
+  document.getElementById('share-url').value = location.href;
+  refreshOgPreview();
 </script>
 
 </body>
