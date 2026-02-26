@@ -17,58 +17,20 @@
   <meta name="twitter:title"       content="Web Share API Demo" />
   <meta name="twitter:description" content="Explore native device sharing alongside social media fallbacks — live demos for iOS, Android, and desktop." />
   <meta name="twitter:image"       content="" />
-  <!-- Inline script: fills og:url from window.location and generates og:image via canvas.
-       Runs synchronously so values are set before any JS-capable scraper proceeds.
+  <!-- Inline script: fills og:url and og:image from window.location so they
+       resolve correctly on any static host without knowing the domain at build time.
        Scrapers that skip JS still see og:title, og:description, and og:type above. -->
   <script>
     (function () {
       var pageUrl = location.href;
       document.querySelector('meta[property="og:url"]').content = pageUrl;
 
-      var W = 1200, H = 630;
-      var c = document.createElement('canvas');
-      c.width = W; c.height = H;
-      var ctx = c.getContext('2d');
-
-      // Background
-      var bg = ctx.createLinearGradient(0, 0, W, H);
-      bg.addColorStop(0, '#0f0f13');
-      bg.addColorStop(1, '#1e1b2e');
-      ctx.fillStyle = bg;
-      ctx.fillRect(0, 0, W, H);
-
-      // Soft radial glow
-      var glow = ctx.createRadialGradient(W / 2, H * 0.42, 0, W / 2, H * 0.42, 420);
-      glow.addColorStop(0,   'rgba(124,58,237,0.38)');
-      glow.addColorStop(0.55,'rgba(96,165,250,0.14)');
-      glow.addColorStop(1,   'rgba(0,0,0,0)');
-      ctx.fillStyle = glow;
-      ctx.fillRect(0, 0, W, H);
-
-      // Title (gradient text via fillText over clip path approximation)
-      ctx.textAlign = 'center';
-      var titleGrad = ctx.createLinearGradient(200, 0, 1000, 0);
-      titleGrad.addColorStop(0, '#a78bfa');
-      titleGrad.addColorStop(1, '#60a5fa');
-      ctx.fillStyle = titleGrad;
-      ctx.font = 'bold 74px -apple-system, system-ui, sans-serif';
-      ctx.fillText('Web Share API Demo', W / 2, 268);
-
-      // Subtitle
-      ctx.fillStyle = 'rgba(255,255,255,0.52)';
-      ctx.font = '33px -apple-system, system-ui, sans-serif';
-      ctx.fillText('Native sharing + social media fallbacks', W / 2, 342);
-
-      // URL watermark
-      ctx.fillStyle = 'rgba(255,255,255,0.2)';
-      ctx.font = '21px monospace';
-      var displayUrl = pageUrl.replace(/^https?:\/\//, '');
-      if (displayUrl.length > 64) displayUrl = displayUrl.slice(0, 62) + '\u2026';
-      ctx.fillText(displayUrl, W / 2, 432);
-
-      var dataUrl = c.toDataURL('image/png');
-      document.querySelector('meta[property="og:image"]').content   = dataUrl;
-      document.querySelector('meta[name="twitter:image"]').content  = dataUrl;
+      // Derive absolute URL for the OG image relative to this page's directory.
+      var imgUrl = location.origin
+        + location.pathname.replace(/\/[^/]*$/, '/')
+        + 'webshare-og.png';
+      document.querySelector('meta[property="og:image"]').content  = imgUrl;
+      document.querySelector('meta[name="twitter:image"]').content = imgUrl;
     })();
   </script>
 
@@ -435,7 +397,7 @@
         <p style="margin-top:0.75rem; font-size:0.75rem; color:#555; line-height:1.55;">
           <strong style="color:#666;">Static hosting:</strong> <code>og:url</code> and <code>og:image</code> are injected by an inline <code>&lt;script&gt;</code> in <code>&lt;head&gt;</code> using <code>window.location</code>, so they resolve correctly on any domain. The title, description, and type are hardcoded and visible to all scrapers.
           <br><br>
-          <strong style="color:#666;">Note:</strong> <code>data:</code> URLs are rejected by most social platforms for <code>og:image</code> — production sites should serve a real image file. The canvas-generated image is shown here for demonstration.
+          <code>og:image</code> points to <code>webshare-og.png</code> in the same directory — a pre-generated 1200×630 PNG accepted by all platforms.
         </p>
       </div>
     </div>
@@ -1405,11 +1367,7 @@ if (navigator.canShare?.({ files: [videoFile] })) {
 
     document.getElementById('og-tags-table').innerHTML = rows.map(([name, attr]) => {
       let val = get(attr, name) || '—';
-      if (val.startsWith('data:')) {
-        val = `data:image/png;base64,\u2026 (${Math.round(val.length / 1024)} KB canvas-generated)`;
-      } else if (val.length > 72) {
-        val = val.slice(0, 70) + '\u2026';
-      }
+      if (val.length > 72) val = val.slice(0, 70) + '\u2026';
       return `<tr><td>${name}</td><td>${val}</td></tr>`;
     }).join('');
   }
