@@ -123,6 +123,7 @@
     .btn-reddit   { background: #ff4500; }
     .btn-copy      { background: #1e293b; border: 1px solid #334155; }
     .btn-instagram { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+    .btn-tiktok    { background: #010101; border: 1px solid #333; }
 
     .btn-group {
       display: flex;
@@ -390,6 +391,18 @@
     </button>
   </div>
 
+  <!-- ── 9c. TikTok ── -->
+  <div class="card">
+    <span class="card-title">Fallback — TikTok</span>
+    <h2>Share to TikTok</h2>
+    <p>TikTok has no web share URL. On mobile, this triggers the native share sheet (which includes TikTok). On desktop, it copies the link and opens TikTok.</p>
+
+    <button class="share-btn btn-tiktok" onclick="shareTikTok()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.53V6.77a4.85 4.85 0 01-1.02-.08z"/></svg>
+      Share to TikTok
+    </button>
+  </div>
+
   <!-- ── 10. Email ── -->
   <div class="card">
     <span class="card-title">Fallback — Email</span>
@@ -423,6 +436,7 @@
         <button class="share-btn btn-twitter"   onclick="shareTwitter()">X / Twitter</button>
         <button class="share-btn btn-facebook"  onclick="shareFacebook()">Facebook</button>
         <button class="share-btn btn-instagram" onclick="shareInstagram()">Instagram</button>
+        <button class="share-btn btn-tiktok"    onclick="shareTikTok()">TikTok</button>
         <button class="share-btn btn-linkedin"  onclick="shareLinkedIn()">LinkedIn</button>
         <button class="share-btn btn-whatsapp"  onclick="shareWhatsApp()">WhatsApp</button>
         <button class="share-btn btn-email"     onclick="shareEmail()">Email</button>
@@ -657,6 +671,24 @@ if (navigator.canShare?.({ files: [videoFile] })) {
     } else {
       instagramFallback(url);
     }
+  }
+
+  function shareTikTok() {
+    const { title, text, url } = getPayload();
+    if ('share' in navigator) {
+      navigator.share({ title, text, url })
+        .then(() => toast('✓ Shared via native sheet'))
+        .catch(err => { if (err.name !== 'AbortError') tiktokFallback(url); });
+    } else {
+      tiktokFallback(url);
+    }
+  }
+
+  function tiktokFallback(url) {
+    navigator.clipboard?.writeText(url)
+      .then(() => toast('✓ Link copied — paste it in TikTok'))
+      .catch(() => toast('Open TikTok and share the link manually'));
+    window.open('https://www.tiktok.com/', '_blank', 'noopener,noreferrer');
   }
 
   function instagramFallback(url) {
