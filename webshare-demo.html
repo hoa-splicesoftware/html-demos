@@ -1072,12 +1072,9 @@ if (navigator.canShare?.({ files: [videoFile] })) {
 
     if (file) {
       if (file.type.includes('webm')) {
-        toast('⚠ Instagram requires MP4 — please use an MP4 video file.');
-        instagramFallback(url);
-        return;
-      }
-
-      if (navigator.canShare?.({ files: [file] })) {
+        toast('⚠ Instagram requires MP4 — sharing link only.');
+        // fall through to URL-only share below
+      } else if (navigator.canShare?.({ files: [file] })) {
         try {
           await navigator.share({ files: [file], title });
           toast('✓ Video shared via native sheet');
