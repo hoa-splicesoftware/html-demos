@@ -52,6 +52,33 @@
 
     .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
 
+    /* ── Table of contents ── */
+    .toc {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      justify-content: center;
+      max-width: 900px;
+      margin: 0 auto 2rem;
+      padding: 0 0.25rem;
+    }
+
+    .toc a {
+      display: inline-block;
+      padding: 0.3rem 0.75rem;
+      border-radius: 99px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      background: #1a1a24;
+      border: 1px solid #2a2a38;
+      color: #a5b4fc;
+      white-space: nowrap;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .toc a:hover { background: #252535; border-color: #4a4a68; }
+
     /* ── Card grid ── */
     .grid {
       display: grid;
@@ -230,10 +257,27 @@
   </span>
 </header>
 
+<nav class="toc" aria-label="Jump to section">
+  <a href="#card-native">Native Share</a>
+  <a href="#card-can-share">canShare()</a>
+  <a href="#card-file">Share File</a>
+  <a href="#card-video">Share Video</a>
+  <a href="#card-twitter">Twitter / X</a>
+  <a href="#card-facebook">Facebook</a>
+  <a href="#card-linkedin">LinkedIn</a>
+  <a href="#card-whatsapp">WhatsApp</a>
+  <a href="#card-telegram">Telegram</a>
+  <a href="#card-instagram">Instagram</a>
+  <a href="#card-tiktok">TikTok</a>
+  <a href="#card-email">Email</a>
+  <a href="#card-copy">Copy Link</a>
+  <a href="#card-smart">Smart Share</a>
+</nav>
+
 <div class="grid">
 
   <!-- ── 1. Native Share (navigator.share) ── -->
-  <div class="card">
+  <div class="card" id="card-native">
     <span class="card-title">Feature 1</span>
     <h2>Native Share Sheet</h2>
     <p>Invokes the OS-level share sheet — apps available depend on what's installed on the device.</p>
@@ -257,7 +301,7 @@
   </div>
 
   <!-- ── 2. canShare() capability check ── -->
-  <div class="card">
+  <div class="card" id="card-can-share">
     <span class="card-title">Feature 2</span>
     <h2>canShare() Check</h2>
     <p>Use <code>navigator.canShare()</code> before calling <code>navigator.share()</code> to verify the payload is shareable.</p>
@@ -273,7 +317,7 @@
   </div>
 
   <!-- ── 3. File sharing ── -->
-  <div class="card">
+  <div class="card" id="card-file">
     <span class="card-title">Feature 3</span>
     <h2>Share a File</h2>
     <p>Pick a local file and share it using the Web Share API — requires browser + OS support for file sharing.</p>
@@ -292,7 +336,7 @@
   </div>
 
   <!-- ── 4. Video sharing ── -->
-  <div class="card">
+  <div class="card" id="card-video">
     <span class="card-title">Feature 4</span>
     <h2>Share a Video</h2>
     <p>Pick a local video file, preview it, then share via the Web Share API — or fall back to a download link.</p>
@@ -314,7 +358,7 @@
   </div>
 
   <!-- ── 6. Twitter / X ── -->
-  <div class="card">
+  <div class="card" id="card-twitter">
     <span class="card-title">Fallback — Twitter / X</span>
     <h2>Share to Twitter</h2>
     <p>Opens Twitter's Web Intent, pre-filled with text and URL. Works on all browsers.</p>
@@ -326,7 +370,7 @@
   </div>
 
   <!-- ── 5. Facebook ── -->
-  <div class="card">
+  <div class="card" id="card-facebook">
     <span class="card-title">Fallback — Facebook</span>
     <h2>Share to Facebook</h2>
     <p>Opens Facebook's sharer dialog with the current demo URL. No app ID required for basic sharing.</p>
@@ -338,7 +382,7 @@
   </div>
 
   <!-- ── 6. LinkedIn ── -->
-  <div class="card">
+  <div class="card" id="card-linkedin">
     <span class="card-title">Fallback — LinkedIn</span>
     <h2>Share to LinkedIn</h2>
     <p>Opens LinkedIn's share dialog with a pre-filled URL. Ideal for professional content sharing.</p>
@@ -350,7 +394,7 @@
   </div>
 
   <!-- ── 7. WhatsApp ── -->
-  <div class="card">
+  <div class="card" id="card-whatsapp">
     <span class="card-title">Fallback — WhatsApp</span>
     <h2>Share to WhatsApp</h2>
     <p>Opens WhatsApp with a pre-composed message. Works in both the desktop and mobile apps.</p>
@@ -362,7 +406,7 @@
   </div>
 
   <!-- ── 8. Telegram ── -->
-  <div class="card">
+  <div class="card" id="card-telegram">
     <span class="card-title">Fallback — Telegram</span>
     <h2>Share to Telegram</h2>
     <p>Opens Telegram's share dialog via the <code>t.me/share/url</code> endpoint.</p>
@@ -386,7 +430,7 @@
   </div>
 
   <!-- ── 9b. Instagram ── -->
-  <div class="card">
+  <div class="card" id="card-instagram">
     <span class="card-title">Fallback — Instagram</span>
     <h2>Share to Instagram</h2>
     <p>Instagram has no web share URL. On mobile, pick an <strong>MP4</strong> video to share via the native sheet (WebM is not supported by Instagram), or share the link. On desktop, the link is copied and Instagram opens.</p>
@@ -414,7 +458,7 @@
   </div>
 
   <!-- ── 9c. TikTok ── -->
-  <div class="card">
+  <div class="card" id="card-tiktok">
     <span class="card-title">Fallback — TikTok</span>
     <h2>Share to TikTok</h2>
     <p>TikTok has no web share URL. On mobile, pick a video to share via the native sheet, or share the link. On desktop, the link is copied and TikTok opens.</p>
@@ -442,7 +486,7 @@
   </div>
 
   <!-- ── 10. Email ── -->
-  <div class="card">
+  <div class="card" id="card-email">
     <span class="card-title">Fallback — Email</span>
     <h2>Share via Email</h2>
     <p>Opens the default mail client with a pre-filled subject and body — zero dependencies.</p>
@@ -453,7 +497,7 @@
   </div>
 
   <!-- ── 11. Copy to clipboard ── -->
-  <div class="card">
+  <div class="card" id="card-copy">
     <span class="card-title">Utility</span>
     <h2>Copy Link to Clipboard</h2>
     <p>Uses the Clipboard API as a silent share fallback when no native share is available.</p>
@@ -462,7 +506,7 @@
   </div>
 
   <!-- ── 12. Smart share ── -->
-  <div class="card">
+  <div class="card" id="card-smart">
     <span class="card-title">Best Practice</span>
     <h2>Smart Share (with Fallback)</h2>
     <p>Tries <code>navigator.share()</code> first; falls back to a custom share menu if the API is unavailable.</p>
